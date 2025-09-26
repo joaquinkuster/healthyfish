@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Monitoreo Piscícola</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --success: #27ae60;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+            --light: #ecf0f1;
+            --dark: #34495e;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 20px 0;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .logo i {
+            font-size: 2.5rem;
+        }
+        
+        .logo h1 {
+            font-size: 1.8rem;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .dashboard {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            gap: 20px;
+        }
+        
+        .sidebar {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        
+        .sidebar ul {
+            list-style: none;
+        }
+        
+        .sidebar li {
+            margin-bottom: 15px;
+        }
+        
+        .sidebar a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            color: var(--dark);
+            padding: 10px;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+        
+        .sidebar a:hover, .sidebar a.active {
+            background-color: var(--secondary);
+            color: white;
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .card {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+        
+        .status-normal {
+            background-color: var(--success);
+        }
+        
+        .status-warning {
+            background-color: var(--warning);
+        }
+        
+        .status-danger {
+            background-color: var(--danger);
+        }
+        
+        .alert {
+            grid-column: 1 / -1;
+            background-color: #fff3cd;
+            border-left: 4px solid var(--warning);
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .alert i {
+            font-size: 1.5rem;
+            color: var(--warning);
+        }
+        
+        .alert-danger {
+            background-color: #f8d7da;
+            border-left-color: var(--danger);
+        }
+        
+        .alert-danger i {
+            color: var(--danger);
+        }
+        
+        .alert-success {
+            background-color: #d1edff;
+            border-left-color: var(--secondary);
+        }
+        
+        .alert-success i {
+            color: var(--secondary);
+        }
+        
+        .metric {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px dashed #eee;
+        }
+        
+        .metric-value {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        
+        .fish-image {
+            width: 100%;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 8px 15px;
+            background-color: var(--secondary);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+        
+        .btn:hover {
+            background-color: var(--primary);
+        }
+        
+        .btn-danger {
+            background-color: var(--danger);
+        }
+        
+        .btn-success {
+            background-color: var(--success);
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background-color: white;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 500px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--dark);
+        }
+        
+        .notification-badge {
+            background-color: var(--danger);
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 0.8rem;
+            margin-left: 5px;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .treatment-option {
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        
+        @media (max-width: 768px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <div class="logo">
+                <i class="fas fa-fish"></i>
+                <h1>Healthy Fish | Sistema de Monitoreo Piscícola</h1>
+            </div>
+            <div class="user-info">
+                <i class="fas fa-user-circle"></i>
+                <span>Productor Acuícola</span>
+            </div>
+        </div>
+    </header>
+    
+    <div class="container">
+        <div class="alert alert-danger">
+            <i class="fas fa-exclamation-triangle"></i>
+            <div>
+                <strong>Alerta de Salud</strong>: Se ha detectado un aumento en la incidencia de síntomas de enfermedad en el estanque 2. Se recomienda revisar los parámetros y considerar tratamiento.
+            </div>
+        </div>
+        
+        <div class="dashboard">
+            <aside class="sidebar">
+                <ul>
+                    <li><a href="#" class="active"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                    <li><a href="#"><i class="fas fa-water"></i> Estanques</a></li>
+                    <li><a href="#"><i class="fas fa-camera"></i> Cámaras</a></li>
+                    <li><a href="#"><i class="fas fa-chart-line"></i> Análisis</a></li>
+                    <li><a href="#"><i class="fas fa-bell"></i> Alertas <span class="notification-badge">3</span></a></li>
+                    <li><a href="#"><i class="fas fa-cog"></i> Configuración</a></li>
+                    <li><a href="#"><i class="fas fa-question-circle"></i> Ayuda</a></li>
+                </ul>
+            </aside>
+            
+            <main class="main-content">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Estado General del Sistema</h2>
+                        <span class="status-indicator status-normal"></span>
+                    </div>
+                    <p>Sistema funcionando correctamente. Todas las cámaras activas.</p>
+                    <div class="metric">
+                        <span>Estanques monitoreados:</span>
+                        <span class="metric-value">4</span>
+                    </div>
+                    <div class="metric">
+                        <span>Cámaras activas:</span>
+                        <span class="metric-value">4/4</span>
+                    </div>
+                    <div class="metric">
+                        <span>Última actualización:</span>
+                        <span class="metric-value">Hace 5 min</span>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Estadísticas de Salud</h2>
+                        <span class="status-indicator status-warning"></span>
+                    </div>
+                    <p>Resumen del estado de salud de los peces en todos los estanques.</p>
+                    <div class="metric">
+                        <span>Peces sanos detectados:</span>
+                        <span class="metric-value">87%</span>
+                    </div>
+                    <div class="metric">
+                        <span>Peces con síntomas:</span>
+                        <span class="metric-value">13%</span>
+                    </div>
+                    <div class="metric">
+                        <span>Umbral de alerta:</span>
+                        <span class="metric-value">10%</span>
+                    </div>
+                    <button class="btn" id="adjustThreshold">Ajustar Umbral</button>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Estanque 1 - Pacú</h2>
+                        <span class="status-indicator status-normal"></span>
+                    </div>
+                    <p>Estado: Normal. No se detectaron anomalías.</p>
+                    <div class="metric">
+                        <span>Peces con síntomas:</span>
+                        <span class="metric-value">2%</span>
+                    </div>
+                    <div class="metric">
+                        <span>Última revisión:</span>
+                        <span class="metric-value">Hoy, 08:30</span>
+                    </div>
+                    <button class="btn">Ver Detalles</button>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Estanque 2 - Carpa Plateada</h2>
+                        <span class="status-indicator status-danger"></span>
+                    </div>
+                    <p>Estado: Crítico. Se detectaron síntomas de Ichthyophthirius (punto blanco).</p>
+                    <div class="metric">
+                        <span>Peces con síntomas:</span>
+                        <span class="metric-value">18%</span>
+                    </div>
+                    <div class="metric">
+                        <span>Última revisión:</span>
+                        <span class="metric-value">Hoy, 09:15</span>
+                    </div>
+                    <button class="btn btn-danger" id="viewAlert">Ver Alerta</button>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Imagen Reciente - Estanque 2</h2>
+                        <i class="fas fa-camera"></i>
+                    </div>
+                    <img src="https://images.unsplash.com/photo-1522069169874-c58ec4b76be5?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" alt="Peces en estanque" class="fish-image">
+                    <p>Imagen capturada hoy a las 09:15. Se observan peces con puntos blancos.</p>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Parámetros de Calidad del Agua</h2>
+                        <span class="status-indicator status-normal"></span>
+                    </div>
+                    <div class="metric">
+                        <span>Temperatura:</span>
+                        <span class="metric-value">22°C</span>
+                    </div>
+                    <div class="metric">
+                        <span>Oxígeno disuelto:</span>
+                        <span class="metric-value">6.8 mg/L</span>
+                    </div>
+                    <div class="metric">
+                        <span>pH:</span>
+                        <span class="metric-value">7.2</span>
+                    </div>
+                    <div class="metric">
+                        <span>Amoníaco:</span>
+                        <span class="metric-value">0.02 mg/L</span>
+                    </div>
+                    <button class="btn">Ver Historial</button>
+                </div>
+            </main>
+        </div>
+    </div>
+    
+    <!-- Modal de Alerta -->
+    <div class="modal" id="alertModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Alerta de Salud - Estanque 2</h2>
+                <button class="close-modal">&times;</button>
+            </div>
+            <p><strong>Fecha:</strong> 15 de noviembre, 2023</p>
+            <p><strong>Hora de detección:</strong> 09:15</p>
+            <p><strong>Nivel de alerta:</strong> Crítico</p>
+            <p><strong>Descripción:</strong> El sistema ha detectado un aumento significativo en la incidencia de síntomas de enfermedad en el Estanque 2 (Carpa Plateada). El análisis de imágenes muestra que el 18% de los peces presentan síntomas visibles, principalmente puntos blancos característicos de Ichthyophthirius ("punto blanco").</p>
+            
+            <div class="treatment-option">
+                <h3>Recomendación de Tratamiento</h3>
+                <p>Para combatir el parásito Ichthyophthirius, se recomienda:</p>
+                <ul>
+                    <li>Renovación parcial del agua (20-30%)</li>
+                    <li>Aplicación de sal común a razón de 2-3 kg por cada 1000 litros de agua</li>
+                    <li>Monitoreo continuo durante 72 horas</li>
+                </ul>
+            </div>
+            
+            <div class="action-buttons">
+                <button class="btn btn-success" id="acknowledgeAlert">Reconocer Alerta</button>
+                <button class="btn">Ver Imágenes</button>
+                <button class="btn">Configurar Tratamiento</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal de Umbral -->
+    <div class="modal" id="thresholdModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Ajustar Umbral de Alerta</h2>
+                <button class="close-modal">&times;</button>
+            </div>
+            <p>Establezca el porcentaje de peces con síntomas que activará una alerta en el sistema.</p>
+            
+            <div class="metric">
+                <span>Umbral actual:</span>
+                <span class="metric-value">10%</span>
+            </div>
+            
+            <label for="thresholdSlider">Nuevo umbral: <span id="thresholdValue">10</span>%</label>
+            <input type="range" id="thresholdSlider" min="5" max="30" value="10" step="1" style="width: 100%; margin: 10px 0;">
+            
+            <div class="action-buttons">
+                <button class="btn btn-success" id="saveThreshold">Guardar Cambios</button>
+                <button class="btn btn-danger" id="cancelThreshold">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Funcionalidad para los modales
+        document.addEventListener('DOMContentLoaded', function() {
+            const alertModal = document.getElementById('alertModal');
+            const thresholdModal = document.getElementById('thresholdModal');
+            const viewAlertBtn = document.getElementById('viewAlert');
+            const adjustThresholdBtn = document.getElementById('adjustThreshold');
+            const closeModalBtns = document.querySelectorAll('.close-modal');
+            const acknowledgeAlertBtn = document.getElementById('acknowledgeAlert');
+            const saveThresholdBtn = document.getElementById('saveThreshold');
+            const cancelThresholdBtn = document.getElementById('cancelThreshold');
+            const thresholdSlider = document.getElementById('thresholdSlider');
+            const thresholdValue = document.getElementById('thresholdValue');
+            
+            // Mostrar modal de alerta
+            viewAlertBtn.addEventListener('click', function() {
+                alertModal.style.display = 'flex';
+            });
+            
+            // Mostrar modal de umbral
+            adjustThresholdBtn.addEventListener('click', function() {
+                thresholdModal.style.display = 'flex';
+            });
+            
+            // Cerrar modales
+            closeModalBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    alertModal.style.display = 'none';
+                    thresholdModal.style.display = 'none';
+                });
+            });
+            
+            // Cerrar modales al hacer clic fuera del contenido
+            window.addEventListener('click', function(event) {
+                if (event.target === alertModal) {
+                    alertModal.style.display = 'none';
+                }
+                if (event.target === thresholdModal) {
+                    thresholdModal.style.display = 'none';
+                }
+            });
+            
+            // Reconocer alerta
+            acknowledgeAlertBtn.addEventListener('click', function() {
+                alert('Alerta reconocida. Se registrará la acción en el sistema.');
+                alertModal.style.display = 'none';
+                
+                // Cambiar el estado del estanque 2 a advertencia
+                const estanque2Status = document.querySelector('.card:nth-child(4) .status-indicator');
+                estanque2Status.classList.remove('status-danger');
+                estanque2Status.classList.add('status-warning');
+                
+                // Actualizar el texto
+                const estanque2Text = document.querySelector('.card:nth-child(4) p');
+                estanque2Text.textContent = 'Estado: En observación. Tratamiento aplicado.';
+                
+                // Cambiar el botón
+                const estanque2Button = document.querySelector('.card:nth-child(4) .btn');
+                estanque2Button.textContent = 'Monitorear Tratamiento';
+                estanque2Button.classList.remove('btn-danger');
+                
+                // Reducir el contador de notificaciones
+                const notificationBadge = document.querySelector('.notification-badge');
+                let currentCount = parseInt(notificationBadge.textContent);
+                if (currentCount > 0) {
+                    notificationBadge.textContent = currentCount - 1;
+                }
+            });
+            
+            // Actualizar valor del slider de umbral
+            thresholdSlider.addEventListener('input', function() {
+                thresholdValue.textContent = this.value;
+            });
+            
+            // Guardar umbral
+            saveThresholdBtn.addEventListener('click', function() {
+                const newThreshold = thresholdSlider.value;
+                document.querySelector('.card:nth-child(2) .metric:last-child .metric-value').textContent = newThreshold + '%';
+                alert('Umbral actualizado a ' + newThreshold + '%');
+                thresholdModal.style.display = 'none';
+            });
+            
+            // Cancelar cambio de umbral
+            cancelThresholdBtn.addEventListener('click', function() {
+                thresholdSlider.value = 10;
+                thresholdValue.textContent = '10';
+                thresholdModal.style.display = 'none';
+            });
+            
+            // Simular nueva alerta después de 10 segundos (solo para demostración)
+            setTimeout(function() {
+                const newAlert = document.createElement('div');
+                newAlert.className = 'alert alert-warning';
+                newAlert.innerHTML = `
+                    <i class="fas fa-exclamation-circle"></i>
+                    <div>
+                        <strong>Nueva Alerta</strong>: Se ha detectado comportamiento anómalo en el Estanque 3. Los peces muestran disminución en la actividad.
+                    </div>
+                `;
+                document.querySelector('.container').insertBefore(newAlert, document.querySelector('.dashboard'));
+                
+                // Actualizar contador de notificaciones
+                const notificationBadge = document.querySelector('.notification-badge');
+                let currentCount = parseInt(notificationBadge.textContent);
+                notificationBadge.textContent = currentCount + 1;
+            }, 10000);
+        });
+    </script>
+</body>
+</html>
